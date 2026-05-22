@@ -128,6 +128,20 @@ function drawChart(prices, symbol) {
     });
 }
 
+function addSignalHistory(symbol, signal, confidence) {
+    const history = document.getElementById("history");
+    const item = document.createElement("p");
+    const time = new Date().toLocaleTimeString();
+
+    item.innerHTML = `${time} | ${symbol} → ${signal} → ${confidence}%`;
+
+    history.prepend(item);
+
+    if (history.children.length > 10) {
+        history.removeChild(history.lastChild);
+    }
+}
+
 async function generateSignal() {
     let symbol = document.getElementById("symbolInput").value.toUpperCase();
 
@@ -183,4 +197,14 @@ async function generateSignal() {
     document.getElementById("rsiValue").textContent = rsi;
     document.getElementById("trendValue").textContent = trend;
     document.getElementById("confidenceValue").textContent = confidence + "%";
+
+    addSignalHistory(symbol, signal, confidence);
 }
+
+setInterval(() => {
+    let symbol = document.getElementById("symbolInput").value.toUpperCase();
+
+    if (symbol !== "") {
+        generateSignal();
+    }
+}, 15000);

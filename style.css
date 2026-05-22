@@ -74,6 +74,13 @@ button:hover {
     background: #ca8a04;
 }
 
+#history p {
+    background: #1f2937;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
 .warning {
     color: #facc15;
     font-size: 14px;
