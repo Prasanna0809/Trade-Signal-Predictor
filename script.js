@@ -10,7 +10,8 @@ const coinMap = {
     BNB: "binancecoin"
 };
 
-async function getRealPrices(symbol) {
+async function getMarketData(symbol) {
+
     let coinId = coinMap[symbol];
 
     if (!coinId) {
@@ -18,26 +19,66 @@ async function getRealPrices(symbol) {
         return null;
     }
 
-    const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=30`;
+    const url =
+        `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=30`;
 
     const response = await fetch(url);
+
     const data = await response.json();
 
-    return data.prices.map(item => Number(item[1].toFixed(2)));
+    let prices =
+        data.prices.map(item => Number(item[1].toFixed(2)));
+
+    let candles = [];
+
+    for (let i = 1; i < prices.length; i++) {
+
+        let open = prices[i - 1];
+
+        let close = prices[i];
+
+        let high =
+            Math.max(open, close) + Math.random() * 5;
+
+        let low =
+            Math.min(open, close) - Math.random() * 5;
+
+        candles.push({
+            x: new Date(Date.now() + i * 3600000),
+            o: open,
+            h: Number(high.toFixed(2)),
+            l: Number(low.toFixed(2)),
+            c: close
+        });
+    }
+
+    return {
+        prices,
+        candles
+    };
 }
 
 function calculateMovingAverage(prices, period) {
-    let recentPrices = prices.slice(-period);
-    let sum = recentPrices.reduce((total, price) => total + price, 0);
+
+    let recentPrices =
+        prices.slice(-period);
+
+    let sum =
+        recentPrices.reduce((total, price) =>
+            total + price, 0);
+
     return Number((sum / period).toFixed(2));
 }
 
 function calculateRSI(prices) {
+
     let gains = 0;
     let losses = 0;
 
     for (let i = 1; i < prices.length; i++) {
-        let difference = prices[i] - prices[i - 1];
+
+        let difference =
+            prices[i] - prices[i - 1];
 
         if (difference > 0) {
             gains += difference;
@@ -51,29 +92,42 @@ function calculateRSI(prices) {
     }
 
     let rs = gains / losses;
-    let rsi = 100 - (100 / (1 + rs));
+
+    let rsi =
+        100 - (100 / (1 + rs));
 
     return Number(rsi.toFixed(2));
 }
 
-function calculateConfidence(differencePercent, rsi, signal) {
+function calculateConfidence(
+    differencePercent,
+    rsi,
+    signal
+) {
+
     let confidence = 50;
 
-    confidence += Math.min(Math.abs(differencePercent) * 10, 25);
+    confidence +=
+        Math.min(Math.abs(differencePercent) * 10, 25);
 
     if (signal === "BUY") {
+
         if (rsi >= 45 && rsi <= 60) {
             confidence += 20;
         } else {
             confidence += 10;
         }
+
     } else if (signal === "SELL") {
+
         if (rsi >= 40 && rsi <= 55) {
             confidence += 20;
         } else {
             confidence += 10;
         }
+
     } else {
+
         confidence = 45;
     }
 
@@ -84,27 +138,30 @@ function calculateConfidence(differencePercent, rsi, signal) {
     return Math.round(confidence);
 }
 
-function drawChart(prices, symbol) {
-    const ctx = document.getElementById("priceChart");
+function drawChart(candles, symbol) {
+
+    const ctx =
+        document.getElementById("priceChart");
 
     if (chart) {
         chart.destroy();
     }
 
     chart = new Chart(ctx, {
-        type: "line",
+
+        type: "candlestick",
+
         data: {
-            labels: prices.map((_, index) => index + 1),
             datasets: [{
-                label: symbol + " Real Price",
-                data: prices,
-                borderWidth: 3,
-                tension: 0.3,
-                fill: false
+                label: symbol + " Candlestick",
+                data: candles
             }]
         },
+
         options: {
+
             responsive: true,
+
             plugins: {
                 legend: {
                     labels: {
@@ -112,12 +169,15 @@ function drawChart(prices, symbol) {
                     }
                 }
             },
+
             scales: {
+
                 x: {
                     ticks: {
                         color: "white"
                     }
                 },
+
                 y: {
                     ticks: {
                         color: "white"
@@ -128,12 +188,23 @@ function drawChart(prices, symbol) {
     });
 }
 
-function addSignalHistory(symbol, signal, confidence) {
-    const history = document.getElementById("history");
-    const item = document.createElement("p");
-    const time = new Date().toLocaleTimeString();
+function addSignalHistory(
+    symbol,
+    signal,
+    confidence
+) {
 
-    item.innerHTML = `${time} | ${symbol} → ${signal} → ${confidence}%`;
+    const history =
+        document.getElementById("history");
+
+    const item =
+        document.createElement("p");
+
+    const time =
+        new Date().toLocaleTimeString();
+
+    item.innerHTML =
+        `${time} | ${symbol} → ${signal} → ${confidence}%`;
 
     history.prepend(item);
 
@@ -143,68 +214,143 @@ function addSignalHistory(symbol, signal, confidence) {
 }
 
 async function generateSignal() {
-    let symbol = document.getElementById("symbolInput").value.toUpperCase();
+
+    let symbol =
+        document.getElementById("symbolInput")
+        .value
+        .toUpperCase();
 
     if (symbol === "") {
+
         alert("Please enter a market symbol.");
+
         return;
     }
 
-    document.getElementById("strategyText").textContent = "Loading real market data...";
+    document.getElementById("strategyText")
+        .textContent =
+        "Loading real market data...";
 
-    let prices = await getRealPrices(symbol);
+    let marketData =
+        await getMarketData(symbol);
 
-    if (!prices) {
+    if (!marketData) {
         return;
     }
 
-    drawChart(prices, symbol);
+    let prices =
+        marketData.prices;
 
-    let shortMA = calculateMovingAverage(prices, 5);
-    let longMA = calculateMovingAverage(prices, 20);
-    let rsi = calculateRSI(prices);
+    let candles =
+        marketData.candles;
+
+    drawChart(candles, symbol);
+
+    let shortMA =
+        calculateMovingAverage(prices, 5);
+
+    let longMA =
+        calculateMovingAverage(prices, 20);
+
+    let rsi =
+        calculateRSI(prices);
 
     let signal = "HOLD";
+
     let strategy = "";
+
     let trend = "";
 
-    let differencePercent = ((shortMA - longMA) / longMA) * 100;
+    let differencePercent =
+        ((shortMA - longMA) / longMA) * 100;
 
-    if (differencePercent > 0.3 && rsi >= 40 && rsi <= 65) {
+    if (
+        differencePercent > 0.3 &&
+        rsi >= 40 &&
+        rsi <= 65
+    ) {
+
         signal = "BUY";
+
         trend = "Bullish";
-        strategy = `${symbol} shows a possible BUY setup. Short MA is clearly above Long MA, and RSI is in a healthy range.`;
-    } else if (differencePercent < -0.3 && rsi >= 35 && rsi <= 60) {
+
+        strategy =
+            `${symbol} shows a possible BUY setup. ` +
+            `Short MA is above Long MA and RSI is healthy.`;
+
+    } else if (
+        differencePercent < -0.3 &&
+        rsi >= 35 &&
+        rsi <= 60
+    ) {
+
         signal = "SELL";
+
         trend = "Bearish";
-        strategy = `${symbol} shows a possible SELL setup. Short MA is clearly below Long MA, and momentum is weakening.`;
+
+        strategy =
+            `${symbol} shows a possible SELL setup. ` +
+            `Momentum appears weaker.`;
+
     } else {
+
         signal = "HOLD";
+
         trend = "Neutral";
-        strategy = `${symbol} does not have a strong enough setup right now. The safer signal is HOLD.`;
+
+        strategy =
+            `${symbol} does not currently have a strong setup.`;
     }
 
-    let confidence = calculateConfidence(differencePercent, rsi, signal);
+    let confidence =
+        calculateConfidence(
+            differencePercent,
+            rsi,
+            signal
+        );
 
-    let signalOutput = document.getElementById("signalOutput");
+    let signalOutput =
+        document.getElementById("signalOutput");
 
     signalOutput.textContent = signal;
-    signalOutput.className = "signal " + signal.toLowerCase();
 
-    document.getElementById("strategyText").textContent = strategy;
-    document.getElementById("shortMA").textContent = shortMA;
-    document.getElementById("longMA").textContent = longMA;
-    document.getElementById("rsiValue").textContent = rsi;
-    document.getElementById("trendValue").textContent = trend;
-    document.getElementById("confidenceValue").textContent = confidence + "%";
+    signalOutput.className =
+        "signal " + signal.toLowerCase();
 
-    addSignalHistory(symbol, signal, confidence);
+    document.getElementById("strategyText")
+        .textContent = strategy;
+
+    document.getElementById("shortMA")
+        .textContent = shortMA;
+
+    document.getElementById("longMA")
+        .textContent = longMA;
+
+    document.getElementById("rsiValue")
+        .textContent = rsi;
+
+    document.getElementById("trendValue")
+        .textContent = trend;
+
+    document.getElementById("confidenceValue")
+        .textContent = confidence + "%";
+
+    addSignalHistory(
+        symbol,
+        signal,
+        confidence
+    );
 }
 
 setInterval(() => {
-    let symbol = document.getElementById("symbolInput").value.toUpperCase();
+
+    let symbol =
+        document.getElementById("symbolInput")
+        .value
+        .toUpperCase();
 
     if (symbol !== "") {
         generateSignal();
     }
+
 }, 15000);
