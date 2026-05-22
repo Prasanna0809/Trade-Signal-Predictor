@@ -1,0 +1,80 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #101820, #1f2937);
+    color: white;
+    text-align: center;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 30px;
+}
+
+h1 {
+    font-size: 38px;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #cbd5e1;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: #111827;
+    padding: 25px;
+    margin: 20px 0;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+input {
+    padding: 12px;
+    width: 70%;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #22c55e;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #16a34a;
+}
+
+.signal {
+    font-size: 42px;
+    font-weight: bold;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 15px auto;
+    width: 220px;
+}
+
+.buy {
+    background: #16a34a;
+}
+
+.sell {
+    background: #dc2626;
+}
+
+.hold {
+    background: #ca8a04;
+}
+
+.warning {
+    color: #facc15;
+    font-size: 14px;
+}
