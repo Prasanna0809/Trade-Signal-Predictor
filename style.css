@@ -7,7 +7,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: auto;
     padding: 30px;
 }
@@ -47,6 +47,7 @@ button {
     color: white;
     font-size: 16px;
     cursor: pointer;
+    margin: 5px;
 }
 
 button:hover {
@@ -74,7 +75,8 @@ button:hover {
     background: #ca8a04;
 }
 
-#history p {
+#history p,
+#scannerResults p {
     background: #1f2937;
     padding: 10px;
     border-radius: 8px;

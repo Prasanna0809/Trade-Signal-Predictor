@@ -6,48 +6,57 @@
 </head>
 <body>
 
-    <div class="container">
-        <h1>📈 Trade Signal Predictor</h1>
-        <p class="subtitle">Real crypto market signal dashboard</p>
+<div class="container">
+    <h1>📈 Trade Signal Predictor</h1>
+    <p class="subtitle">Real crypto market signal dashboard</p>
 
-        <div class="card">
-            <h2>Market Input</h2>
-            <input type="text" id="symbolInput" placeholder="Enter: BTC, ETH, SOL, DOGE">
-            <button onclick="generateSignal()">Generate Signal</button>
-        </div>
-
-        <div class="card signal-card">
-            <h2>Signal</h2>
-            <div id="signalOutput" class="signal hold">HOLD</div>
-            <p id="strategyText">Enter a symbol and generate a signal.</p>
-        </div>
-
-        <div class="card">
-            <h2>Market Data</h2>
-            <p>Short Moving Average: <span id="shortMA">-</span></p>
-            <p>Long Moving Average: <span id="longMA">-</span></p>
-            <p>RSI: <span id="rsiValue">-</span></p>
-            <p>Trend: <span id="trendValue">-</span></p>
-            <p>Confidence: <span id="confidenceValue">-</span></p>
-        </div>
-
-        <div class="card">
-            <h2>Price Chart</h2>
-            <canvas id="priceChart"></canvas>
-        </div>
-
-        <div class="card">
-            <h2>Signal History</h2>
-            <div id="history"></div>
-        </div>
-
-        <p class="warning">
-            ⚠️ Educational project only. This is not financial advice.
-        </p>
+    <div class="card">
+        <h2>Market Input</h2>
+        <input type="text" id="symbolInput" placeholder="Enter: BTC, ETH, SOL, DOGE">
+        <button onclick="generateSignal()">Generate Signal</button>
+        <button onclick="scanMarket()">Scan Market</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <div class="card signal-card">
+        <h2>Signal</h2>
+        <div id="signalOutput" class="signal hold">HOLD</div>
+        <p id="strategyText">Enter a symbol and generate a signal.</p>
+    </div>
+
+    <div class="card">
+        <h2>Market Data</h2>
+        <p>Short Moving Average: <span id="shortMA">-</span></p>
+        <p>Long Moving Average: <span id="longMA">-</span></p>
+        <p>RSI: <span id="rsiValue">-</span></p>
+        <p>Trend: <span id="trendValue">-</span></p>
+        <p>Confidence: <span id="confidenceValue">-</span></p>
+    </div>
+
+    <div class="card">
+        <h2>Price Chart</h2>
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>Market Scanner</h2>
+        <div id="scannerResults"></div>
+    </div>
+
+    <div class="card">
+        <h2>Signal History</h2>
+        <div id="history"></div>
+    </div>
+
+    <p class="warning">
+        ⚠️ Educational project only. This is not financial advice.
+    </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
-    <script src="script.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>
