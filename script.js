@@ -11,7 +11,7 @@ const coinMap = {
     BNB: "binancecoin"
 };
 
-async function getMarketData(symbol) {
+async function getMarketData(symbol, days) {
     const coinId = coinMap[symbol];
 
     if (!coinId) {
@@ -19,7 +19,8 @@ async function getMarketData(symbol) {
         return null;
     }
 
-    const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=30`;
+    const url =
+        `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`;
 
     const response = await fetch(url);
 
@@ -34,7 +35,6 @@ async function getMarketData(symbol) {
     }
 
     const rawPrices = data.prices;
-
     const prices = rawPrices.map(item => Number(item[1].toFixed(2)));
 
     const candles = [];
@@ -119,18 +119,24 @@ function calculateConfidence(differencePercent, rsi, signal) {
     return Math.round(confidence);
 }
 
-function drawChart(candles, symbol) {
+function drawChart(candles, symbol, days) {
     const ctx = document.getElementById("priceChart");
 
     if (chart) {
         chart.destroy();
     }
 
+    let timeUnit = "day";
+
+    if (days === "1") {
+        timeUnit = "hour";
+    }
+
     chart = new Chart(ctx, {
         type: "candlestick",
         data: {
             datasets: [{
-                label: symbol + " Candlestick Chart",
+                label: `${symbol} Candlestick Chart (${days}D)`,
                 data: candles
             }]
         },
@@ -147,7 +153,7 @@ function drawChart(candles, symbol) {
                 x: {
                     type: "time",
                     time: {
-                        unit: "day"
+                        unit: timeUnit
                     },
                     ticks: {
                         color: "white"
@@ -163,12 +169,12 @@ function drawChart(candles, symbol) {
     });
 }
 
-function addSignalHistory(symbol, signal, confidence) {
+function addSignalHistory(symbol, signal, confidence, days) {
     const history = document.getElementById("history");
     const item = document.createElement("p");
     const time = new Date().toLocaleTimeString();
 
-    item.innerHTML = `${time} | ${symbol} → ${signal} → ${confidence}%`;
+    item.innerHTML = `${time} | ${symbol} | ${days}D → ${signal} → ${confidence}%`;
 
     history.prepend(item);
 
@@ -217,6 +223,7 @@ async function generateSignal() {
     }
 
     const symbol = document.getElementById("symbolInput").value.toUpperCase().trim();
+    const days = document.getElementById("timeframeSelect").value;
 
     if (symbol === "") {
         alert("Please enter a market symbol.");
@@ -228,14 +235,14 @@ async function generateSignal() {
 
         document.getElementById("strategyText").textContent = "Loading real market data...";
 
-        const marketData = await getMarketData(symbol);
+        const marketData = await getMarketData(symbol, days);
 
         if (!marketData) {
             document.getElementById("strategyText").textContent = "Could not load market data.";
             return;
         }
 
-        drawChart(marketData.candles, symbol);
+        drawChart(marketData.candles, symbol, days);
 
         const result = analyzeSignal(symbol, marketData.prices);
 
@@ -251,7 +258,7 @@ async function generateSignal() {
         document.getElementById("trendValue").textContent = result.trend;
         document.getElementById("confidenceValue").textContent = result.confidence + "%";
 
-        addSignalHistory(symbol, result.signal, result.confidence);
+        addSignalHistory(symbol, result.signal, result.confidence, days);
 
     } catch (error) {
         console.error(error);
@@ -264,6 +271,7 @@ async function generateSignal() {
 
 async function scanMarket() {
     const scanner = document.getElementById("scannerResults");
+    const days = document.getElementById("timeframeSelect").value;
     const symbols = ["BTC", "ETH", "SOL", "DOGE", "ADA", "XRP", "BNB"];
 
     scanner.innerHTML = "<p>Scanning market...</p>";
@@ -272,11 +280,11 @@ async function scanMarket() {
         scanner.innerHTML = "";
 
         for (const symbol of symbols) {
-            const marketData = await getMarketData(symbol);
+            const marketData = await getMarketData(symbol, days);
             const result = analyzeSignal(symbol, marketData.prices);
 
             const item = document.createElement("p");
-            item.innerHTML = `${symbol} → ${result.signal} → ${result.confidence}%`;
+            item.innerHTML = `${symbol} | ${days}D → ${result.signal} → ${result.confidence}%`;
             scanner.appendChild(item);
         }
     } catch (error) {

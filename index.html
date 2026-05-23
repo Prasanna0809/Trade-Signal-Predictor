@@ -12,7 +12,18 @@
 
     <div class="card">
         <h2>Market Input</h2>
+
         <input type="text" id="symbolInput" placeholder="Enter: BTC, ETH, SOL, DOGE">
+
+        <select id="timeframeSelect">
+            <option value="1">1 Day</option>
+            <option value="7">7 Days</option>
+            <option value="30" selected>30 Days</option>
+            <option value="90">90 Days</option>
+        </select>
+
+        <br><br>
+
         <button onclick="generateSignal()">Generate Signal</button>
         <button onclick="scanMarket()">Scan Market</button>
     </div>

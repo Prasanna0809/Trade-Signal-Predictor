@@ -30,13 +30,17 @@ h1 {
     box-shadow: 0 0 15px rgba(0,0,0,0.4);
 }
 
-input {
+input,
+select {
     padding: 12px;
-    width: 70%;
     border: none;
     border-radius: 8px;
     font-size: 16px;
-    margin-bottom: 15px;
+    margin: 5px;
+}
+
+input {
+    width: 65%;
 }
 
 button {
